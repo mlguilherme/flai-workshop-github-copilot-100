@@ -65,3 +65,10 @@ class TestUnregister:
             params={"email": "michael@mergington.edu"},
         )
         assert response.status_code == 404
+
+    def test_unregister_invalid_email_returns_422(self):
+        response = client.delete(
+            "/activities/Chess Club/signup",
+            params={"email": "not-an-email"},
+        )
+        assert response.status_code == 422

@@ -98,6 +98,13 @@ class TestSignup:
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()
 
+    def test_signup_invalid_email_returns_422(self):
+        response = client.post(
+            "/activities/Chess Club/signup",
+            params={"email": "not-an-email"},
+        )
+        assert response.status_code == 422
+
 
 # ---------------------------------------------------------------------------
 # DELETE /activities/{activity_name}/signup
