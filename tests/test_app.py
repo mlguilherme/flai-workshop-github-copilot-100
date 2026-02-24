@@ -90,7 +90,14 @@ class TestSignup:
         assert response.status_code == 400
         assert "already signed up" in response.json()["detail"].lower()
 
-    def test_signup_unknown_activity_returns_404(self):
+    def test_signup_invalid_email_returns_422(self):
+        response = client.post(
+            "/activities/Chess Club/signup",
+            params={"email": "not-an-email"},
+        )
+        assert response.status_code == 422
+
+
         response = client.post(
             "/activities/Unknown Activity/signup",
             params={"email": "someone@mergington.edu"},
@@ -129,7 +136,14 @@ class TestUnregister:
         assert response.status_code == 404
         assert "not signed up" in response.json()["detail"].lower()
 
-    def test_unregister_unknown_activity_returns_404(self):
+    def test_unregister_invalid_email_returns_422(self):
+        response = client.delete(
+            "/activities/Chess Club/signup",
+            params={"email": "not-an-email"},
+        )
+        assert response.status_code == 422
+
+
         response = client.delete(
             "/activities/Unknown Activity/signup",
             params={"email": "someone@mergington.edu"},
