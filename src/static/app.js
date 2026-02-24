@@ -20,44 +20,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
-        const participantsList = details.participants.length > 0
-          ? `<ul class="participants-list">${details.participants.map(p => `<li><span class="participant-email">${p}</span><button class="delete-btn" data-activity="${name}" data-email="${p}" title="Unregister" aria-label="Unregister">&#x1F5D1;</button></li>`).join("")}</ul>`
-          : `<p class="no-participants">No participants yet. Be the first!</p>`;
-
         activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <h4></h4>
+          <p class="activity-description"></p>
+          <p><strong>Schedule:</strong> <span class="activity-schedule"></span></p>
+          <p><strong>Availability:</strong> <span class="activity-spots"></span></p>
           <div class="participants-section">
-            <p class="participants-title">Participants (${details.participants.length}/${details.max_participants}):</p>
-            ${participantsList}
+            <p class="participants-title"></p>
           </div>
         `;
 
-        activitiesList.appendChild(activityCard);
+        activityCard.querySelector("h4").textContent = name;
+        activityCard.querySelector(".activity-description").textContent = details.description;
+        activityCard.querySelector(".activity-schedule").textContent = details.schedule;
+        activityCard.querySelector(".activity-spots").textContent = `${spotsLeft} spots left`;
+        activityCard.querySelector(".participants-title").textContent =
+          `Participants (${details.participants.length}/${details.max_participants}):`;
 
-        // Attach delete handlers
-        activityCard.querySelectorAll(".delete-btn").forEach(btn => {
-          btn.addEventListener("click", async () => {
-            const activity = btn.dataset.activity;
-            const email = btn.dataset.email;
-            try {
-              const response = await fetch(
-                `/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`,
-                { method: "DELETE" }
-              );
-              if (response.ok) {
-                fetchActivities();
-              } else {
-                const result = await response.json();
-                alert(result.detail || "Failed to unregister");
+        const participantsSection = activityCard.querySelector(".participants-section");
+
+        if (details.participants.length > 0) {
+          const ul = document.createElement("ul");
+          ul.className = "participants-list";
+          details.participants.forEach(p => {
+            const li = document.createElement("li");
+            const span = document.createElement("span");
+            span.className = "participant-email";
+            span.textContent = p;
+            const btn = document.createElement("button");
+            btn.className = "delete-btn";
+            btn.dataset.activity = name;
+            btn.dataset.email = p;
+            btn.title = "Unregister";
+            btn.setAttribute("aria-label", "Unregister");
+            btn.textContent = "\uD83D\uDDD1";
+            btn.addEventListener("click", async () => {
+              try {
+                const response = await fetch(
+                  `/activities/${encodeURIComponent(name)}/signup?email=${encodeURIComponent(p)}`,
+                  { method: "DELETE" }
+                );
+                if (response.ok) {
+                  fetchActivities();
+                } else {
+                  const result = await response.json();
+                  alert(result.detail || "Failed to unregister");
+                }
+              } catch (error) {
+                console.error("Error unregistering:", error);
               }
-            } catch (error) {
-              console.error("Error unregistering:", error);
-            }
+            });
+            li.appendChild(span);
+            li.appendChild(btn);
+            ul.appendChild(li);
           });
-        });
+          participantsSection.appendChild(ul);
+        } else {
+          const noParticipants = document.createElement("p");
+          noParticipants.className = "no-participants";
+          noParticipants.textContent = "No participants yet. Be the first!";
+          participantsSection.appendChild(noParticipants);
+        }
+
+        activitiesList.appendChild(activityCard);
 
         // Add option to select dropdown
         const option = document.createElement("option");
