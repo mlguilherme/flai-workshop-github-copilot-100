@@ -96,12 +96,32 @@ section h3 {
 }
 
 .participants-list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   background-color: #e8eaf6;
   color: #283593;
   padding: 3px 10px;
   border-radius: 12px;
   font-size: 13px;
   border: 1px solid #c5cae9;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  color: #c62828;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+  background: none;
 }
 
 .no-participants {
