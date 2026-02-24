@@ -31,7 +31,7 @@ class TestGetActivities:
         response = client.get("/activities")
         assert response.status_code == 200
         data = response.json()
-        assert len(data) == 9
+        assert len(data) == len(activities)
 
     def test_activity_has_expected_fields(self):
         response = client.get("/activities")
