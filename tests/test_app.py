@@ -2,7 +2,6 @@
 Tests for the Mergington High School API.
 """
 
-import copy
 import pytest
 from fastapi.testclient import TestClient
 
