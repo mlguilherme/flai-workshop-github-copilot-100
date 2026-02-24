@@ -98,6 +98,17 @@ class TestSignup:
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()
 
+    def test_signup_full_activity_returns_400(self):
+        # Fill Chess Club to its max capacity (12 participants)
+        for i in range(activities["Chess Club"]["max_participants"] - len(activities["Chess Club"]["participants"])):
+            activities["Chess Club"]["participants"].append(f"filler{i}@mergington.edu")
+        response = client.post(
+            "/activities/Chess Club/signup",
+            params={"email": "latecomer@mergington.edu"},
+        )
+        assert response.status_code == 400
+        assert "full" in response.json()["detail"].lower()
+
 
 # ---------------------------------------------------------------------------
 # DELETE /activities/{activity_name}/signup

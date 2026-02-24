@@ -20,20 +20,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
-        const participantsList = details.participants.length > 0
-          ? `<ul class="participants-list">${details.participants.map(p => `<li><span class="participant-email">${p}</span><button class="delete-btn" data-activity="${name}" data-email="${p}" title="Unregister" aria-label="Unregister">&#x1F5D1;</button></li>`).join("")}</ul>`
-          : `<p class="no-participants">No participants yet. Be the first!</p>`;
+        // Build participants list safely using DOM methods to prevent XSS
+        const participantsList = document.createElement("div");
+        if (details.participants.length > 0) {
+          const ul = document.createElement("ul");
+          ul.className = "participants-list";
+          details.participants.forEach(p => {
+            const li = document.createElement("li");
+            const span = document.createElement("span");
+            span.className = "participant-email";
+            span.textContent = p;
+            const btn = document.createElement("button");
+            btn.className = "delete-btn";
+            btn.dataset.activity = name;
+            btn.dataset.email = p;
+            btn.title = "Unregister";
+            btn.setAttribute("aria-label", "Unregister");
+            btn.textContent = "🗑";
+            li.appendChild(span);
+            li.appendChild(btn);
+            ul.appendChild(li);
+          });
+          participantsList.appendChild(ul);
+        } else {
+          const p = document.createElement("p");
+          p.className = "no-participants";
+          p.textContent = "No participants yet. Be the first!";
+          participantsList.appendChild(p);
+        }
 
         activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
+          <h4></h4>
+          <p></p>
+          <p><strong>Schedule:</strong> <span class="schedule-value"></span></p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
           <div class="participants-section">
             <p class="participants-title">Participants (${details.participants.length}/${details.max_participants}):</p>
-            ${participantsList}
           </div>
         `;
+
+        activityCard.querySelector("h4").textContent = name;
+        activityCard.querySelector("p").textContent = details.description;
+        activityCard.querySelector(".schedule-value").textContent = details.schedule;
+        activityCard.querySelector(".participants-section").appendChild(participantsList);
 
         activitiesList.appendChild(activityCard);
 
